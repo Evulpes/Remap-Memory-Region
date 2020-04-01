@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29911.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Remap-Memory-Region", "Remap-Memory-Region.csproj", "{FEFEE957-DD53-4444-9485-E2615A476B4B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FEFEE957-DD53-4444-9485-E2615A476B4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEFEE957-DD53-4444-9485-E2615A476B4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEFEE957-DD53-4444-9485-E2615A476B4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEFEE957-DD53-4444-9485-E2615A476B4B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {26A530FF-63C7-45B4-9CB3-5C70A67CBBF5}
+	EndGlobalSection
+EndGlobal
