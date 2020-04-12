@@ -9,7 +9,7 @@ namespace Remap_Memory_Region
     {
         static void Main(string[] args)
         {
-            Process process = Process.GetProcessesByName("wow").FirstOrDefault();
+            Process process = Process.GetProcessesByName("notepad").FirstOrDefault();
             IntPtr hProcess = Processthreadsapi.OpenProcess(Winnt.ProcessAccessFlags.PROCESS_ALL_ACCESS, false, process.Id);
 
             if (hProcess == IntPtr.Zero)
