@@ -26,18 +26,18 @@ namespace Remap_Memory_Region
             IntPtr regionBase = basicInformation.baseAddress;
             IntPtr regionSize = basicInformation.regionSize;
             Ntpsapi.NtSuspendProcess(hProcess);
-            RemapMemoryRegion(hProcess, regionBase, regionSize.ToInt32(), Winnt.MemoryProtectionConstraints.PAGE_WRITECOMBINE);            //MISSING VIRTUALALLOC
+            RemapMemoryRegion(hProcess, regionBase, regionSize.ToInt32(), Winnt.MemoryProtectionConstraints.PAGE_EXECUTE_READWRITE);
             Ntpsapi.NtResumeProcess(hProcess);
             Handleapi.CloseHandle(hProcess);
 
         }
         public static bool RemapMemoryRegion(IntPtr processHandle, IntPtr baseAddress, int regionSize, Winnt.MemoryProtectionConstraints mapProtection)
         {
-            IntPtr addr = Memoryapi.VirtualAlloc(IntPtr.Zero, regionSize, Winnt.MemoryAllocationType.MEM_COMMIT | Winnt.MemoryAllocationType.MEM_RESERVE, Winnt.MemoryProtectionConstraints.PAGE_EXECUTE_READWRITE);
+            IntPtr addr = Memoryapi.VirtualAlloc(IntPtr.Zero, regionSize, Winnt.MemoryAllocationType.MEM_COMMIT | Winnt.MemoryAllocationType.MEM_RESERVE, mapProtection);
             if (addr == IntPtr.Zero)
                 return false;
 
-            IntPtr copyBuf = Memoryapi.VirtualAlloc(IntPtr.Zero, regionSize, Winnt.MemoryAllocationType.MEM_COMMIT | Winnt.MemoryAllocationType.MEM_RESERVE, Winnt.MemoryProtectionConstraints.PAGE_EXECUTE_READWRITE);
+            IntPtr copyBuf = Memoryapi.VirtualAlloc(IntPtr.Zero, regionSize, Winnt.MemoryAllocationType.MEM_COMMIT | Winnt.MemoryAllocationType.MEM_RESERVE, mapProtection);
 
             if (!Memoryapi.ReadProcessMemory(processHandle, baseAddress, copyBuf, regionSize, out IntPtr bytes))
                 return false;
@@ -61,16 +61,19 @@ namespace Remap_Memory_Region
             IntPtr viewBase = baseAddress;
             long sectionOffset = default;
             uint viewSize = 0;
-            status = Ntapi.NtMapViewOfSection(sectionHandle,
-                                               processHandle,
-                                               ref viewBase,
-                                               UIntPtr.Zero,
-                                               regionSize,
-                                               ref sectionOffset,
-                                               ref viewSize,
-                                               2,
-                                               0,
-                                               Winnt.MemoryProtectionConstraints.PAGE_EXECUTE_READWRITE);
+            status = Ntapi.NtMapViewOfSection
+            (
+                sectionHandle,
+                processHandle,
+                ref viewBase,
+                UIntPtr.Zero,
+                regionSize,
+                ref sectionOffset,
+                ref viewSize,
+                2,
+                0,
+                Winnt.MemoryProtectionConstraints.PAGE_EXECUTE_READWRITE
+            );
 
             if (status != Ntifs.Ntstatus.STATUS_SUCCESS)
                 return false;
