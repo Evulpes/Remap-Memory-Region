@@ -1,5 +1,6 @@
 # Remap-Memory-Region
 Basic example of how to change the initial rights on a memory region during runtime.
-I need to clean this up.
 
-If you are using this and want to avoid detection, remap whatever process it is back to its initial projection after writes. You'll need to rejig the code, but this is more of an example with platform invokes than anything.
+As this code is getting some traction, please note that this sample does very little error checking, or cleanup of resources. You will need to implement these if you plan to use this sample ofr anything. 
+
+Please note that the AllocationProtect flag of MEMORY_BASIC_INFORMATION structure contains the initial rights, so anticheat can check if you have changed the initial rights from what they should be.
