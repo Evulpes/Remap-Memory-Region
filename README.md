@@ -1,6 +1,6 @@
 # Remap-Memory-Region
 ## Other Usage Examples
-[Diablo II: Resurrected - Offline Patcher](https://github.com/ferib/D2R-Offline)
+[Offline Patcher](https://github.com/ferib/D2R-Offline)
 
 [Bypassing Read-Only Code Protection (crc32)](https://ferib.dev/blog.php?l=post/Bypassing_World_of_Warcraft_Crc32_Integrity_Checks)
 ## Introduction - It Is Known!
