@@ -21,9 +21,9 @@ Right so here's a picture I made earlier of what the intitial protection for the
 <p align="center">
   <img src="https://i.imgur.com/iJYqn60.png"/>
 </p> 
-As shown, all of the segments have initial protection of ERWC (Execute, Read, Write, and Copy), which in terms of security is no good! While the current protection on the .text segment is ER (Execute, Read, NOT Emergency Room), we can just elevate the current rights to allow for Write/Copy and do whatever we feel like doing:
+As shown, all of the segments have initial protection of ERWC (Execute, Read, Write, and Copy), which in terms of security is no good! While the current protection on the .text segment is ER (Execute, Read, NOT Emergency Room), we can just elevate the current rights to allow for Writes and do whatever we feel like doing:
 <p align="center">
-  <img src="https://i.imgur.com/uJ1pV5X.png"/>
+  <img src="https://i.imgur.com/UeCjMrO.png"/>
 </p> 
 
 ### Bob The Memory Protection Builder
