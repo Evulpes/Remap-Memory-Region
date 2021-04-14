@@ -175,7 +175,7 @@ But now we can see that the section is only ER, and has the initial rights of ER
   <img src="https://i.imgur.com/3r5HF5j.png"/>
 </p> 
 
-And if we attempt to change those rights to allow for writes, we get an error from:
+And if we attempt to change those rights to allow for writes, we get an error from the debugger:
 <p align="center">
   <img src="https://i.imgur.com/ZuuPISi.png"/>
 </p> 
