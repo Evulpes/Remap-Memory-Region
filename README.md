@@ -4,7 +4,7 @@
 
 [Bypassing Read-Only Code Protection (crc32)](https://ferib.dev/blog.php?l=post/Bypassing_World_of_Warcraft_Crc32_Integrity_Checks)
 ## Introduction - It Is Known!
-Like that one extra said in Game of Thrones, ["it is known"](https://youtu.be/foqUPiwMiOM). It is known that you cannot set your [Memory Protection Options](https://docs.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights) greater than the initial level. I say this but I can't source it; I'm SURE Microsoft will have written it down somewhere, so go find it and pull request. However for now, it is just known, unless you go try it.
+Like that one extra said in Game of Thrones, ["it is known"](https://youtu.be/foqUPiwMiOM). It is known that you cannot set your [Memory Protection Options](https://docs.microsoft.com/en-us/windows/win32/memory/memory-protection-constants) greater than the initial level. I say this but I can't source it; I'm SURE Microsoft will have written it down somewhere, so go find it and pull request. However for now, it is just known, unless you go try it.
 
 This restriction creates a bit of a problem in some cases. For example, what if there's a region that only has [PAGE_EXECUTE_READ](https://docs.microsoft.com/en-us/windows/win32/memory/memory-protection-constants), as it's initial level, but you want to write to, or modify, its memory? In most cases, you can't. 
 You can also think of this as an oppurtunity; what if you have an application that you want to protect from memory edits?
@@ -32,7 +32,7 @@ So we've established that Globe of Peacekeeping isn't very good at keeping it's 
 We're going to be using an external application to modify the executable for Globe of Peacekeeping, purely because it's a lot simplier to do so. 
 
 #### 1. Don't Pick Up The Phone, You Know He's Only Calling For A Handle To Your Process.
-First things first, we're going to need a handle to the Globe of Peacekeeping process, with full access (PROCESS_ALL_ACCESS). We'll use the Process class from C#, and [OpenProcess](https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess) for this:
+First things first, we're going to need a handle to the Globe of Peacekeeping process, with full access ([PROCESS_ALL_ACCESS](https://docs.microsoft.com/en-us/windows/win32/procthread/process-security-and-access-rights)). We'll use the Process class from C#, and [OpenProcess](https://docs.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-openprocess) for this:
 ```csharp
 Process targetProc = Process.GetProcessesByName("globeofpeacekeeping").FirstOrDefault();
 
