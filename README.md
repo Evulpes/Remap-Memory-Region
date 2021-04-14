@@ -21,7 +21,7 @@ Right so here's a picture I made earlier of what the intitial protection for the
 <p align="center">
   <img src="https://i.imgur.com/iJYqn60.png"/>
 </p> 
-As shown, all of the segments have initial protection of ERWC (Execute, Read, Write, and Copy), which in terms of security is no good! While the current protection on the .text segment is ER (Execute, Read, NOT Emergency Room), we can just [modify it](https://docs.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-virtualprotect) to allow for Write/Copy and do whatever we feel like doing:
+As shown, all of the segments have initial protection of ERWC (Execute, Read, Write, and Copy), which in terms of security is no good! While the current protection on the .text segment is ER (Execute, Read, NOT Emergency Room), we can just [modify the rights](https://www.youtube.com/watch?v=sNPnbI1arSE) to allow for Write/Copy and do whatever we feel like doing:
 <p align="center">
   <img src="https://i.imgur.com/uJ1pV5X.png"/>
 </p> 
