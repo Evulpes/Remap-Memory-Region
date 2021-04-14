@@ -13,40 +13,58 @@ namespace Remap_Memory_Region
     {
         static void Main(string[] args)
         {
-            Process targetProc = Process.GetProcessesByName("SomeProcess").FirstOrDefault();
+            //Set this bool to true if the region data is not obscured.
+            bool sectioned = true;
+
+            Process targetProc = Process.GetProcessesByName("notepad").FirstOrDefault();
 
             //Open a handle to the target process
             IntPtr hProcess = Processthreadsapi.OpenProcess(ProcessAccessFlags.PROCESS_ALL_ACCESS, false, targetProc.Id);
             if (hProcess == IntPtr.Zero)
                 NativeError("OpenProcess");
 
+            IntPtr baseAddress;
+            int regionSize;
 
-            //Query the process and get the baseInfo structure.
-            /*Very specific practice for very specifc apps. .NET has built in methods for standard apps.
-             See: Process Class Base Address + ModuleMemorySize*/
-            if (Memoryapi.VirtualQueryEx
-            (
-                hProcess,
-                targetProc.MainModule.BaseAddress,
-                out MEMORY_BASIC_INFORMATION basicInfo,
-                Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION))) == 0
-            )
-                NativeError("VirtualQueryEx");
+            if (sectioned)
+            {
+                //Set the base module address and the size.
+                baseAddress = targetProc.MainModule.BaseAddress;
+                regionSize = targetProc.MainModule.ModuleMemorySize;
+            }
+            else
+            {
 
+                //Query the process and get the baseInfo structure.
+                /*Very specific practice for very specifc apps. .NET has built in methods for standard apps.
+                 See: Process Class Base Address + ModuleMemorySize*/
 
+                if (Memoryapi.VirtualQueryEx
+                (
+                    hProcess,
+                    targetProc.MainModule.BaseAddress,
+                    out MEMORY_BASIC_INFORMATION basicInfo,
+                    Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION))) == 0
+                )
+                    NativeError("VirtualQueryEx");
+
+                baseAddress = basicInfo.baseAddress;
+                regionSize = (int)basicInfo.regionSize;
+            }
+            
             Ntpsapi.NtSuspendProcess(hProcess);
 
             //Allocate a buffer to read the region to.
-            IntPtr buffer = Memoryapi.VirtualAlloc(IntPtr.Zero, (int)basicInfo.regionSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+            IntPtr buffer = Memoryapi.VirtualAlloc(IntPtr.Zero, regionSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
             if (buffer == IntPtr.Zero)
                 NativeError("VirtualAlloc");
 
             //Read the data into the buffer.
-            if (!Memoryapi.ReadProcessMemory(hProcess, basicInfo.baseAddress, buffer, (int)basicInfo.regionSize, out _))
+            if (!Memoryapi.ReadProcessMemory(hProcess, baseAddress, buffer, regionSize, out _))
                 NativeError("ReadProcessMemory");
 
             IntPtr hSection = IntPtr.Zero;
-            long sectionMaxSize = (long)basicInfo.regionSize;
+            long sectionMaxSize = (long)regionSize;
 
 
             //Create a section object to share between local and remote process.
@@ -64,10 +82,10 @@ namespace Remap_Memory_Region
                 NativeError("NtCreateSection");
 
             //Unmap the memory at the base of the remote process.
-            if (Ntapi.NtUnmapViewOfSection(hProcess, basicInfo.baseAddress) != Ntifs.Ntstatus.STATUS_SUCCESS)
+            if (Ntapi.NtUnmapViewOfSection(hProcess, baseAddress) != Ntifs.Ntstatus.STATUS_SUCCESS)
                 NativeError("NtUnmapViewOfSection");
 
-            IntPtr viewBase = basicInfo.baseAddress;
+            IntPtr viewBase = baseAddress;
             long sectionOffset = default;
             uint viewSize = default;
 
@@ -78,7 +96,7 @@ namespace Remap_Memory_Region
                 hProcess,
                 ref viewBase,
                 UIntPtr.Zero,
-                (int)basicInfo.regionSize,
+                regionSize,
                 ref sectionOffset,
                 ref viewSize,
                 2 /*ViewUnmap*/,
