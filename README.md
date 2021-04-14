@@ -14,7 +14,7 @@ Let's suppose all these write-ups I do are entirely for ethical purposes, and th
 With this scenario in mind, let's look at how Sandstorm Depression can modify the initial page protection level to stop writes to their memory.
 
 ### Initial D but it's ERWC
-Right so here's a picture I made earlier of what the intitial proection for the base executable looks like in Globe of Peackeeping:
+Right so here's a picture I made earlier of what the intitial protection for the base executable looks like in Globe of Peackeeping:
 <p align="center">
   <img src="https://i.imgur.com/iJYqn60.png"/>
 </p> 
@@ -167,7 +167,7 @@ if (Ntapi.NtMapViewOfSection
 ```
 And we're back to this:
 <p align="center">
-  <img src="https://i.imgur.com/htuyS8j.png"/>
+  <img src="https://i.imgur.com/uH7j8tc.png"/>
 </p> 
 
 But now we can see that the section is only ER, and has the initial rights of ER, meaning it cannot be elevated past that level:
