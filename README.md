@@ -136,12 +136,12 @@ It now looks like this:
 
 Before:
 <p align="center">
-  <img src="https://i.imgur.com/htuyS8j.png"/>
+  <img src="https://i.imgur.com/uH7j8tc.png"/>
 </p> 
 
 After:
 <p align="center">
-  <img src="https://i.imgur.com/ck4msJC.png"/>
+  <img src="https://i.imgur.com/miUey8j.png"/>
 </p> 
 
 
