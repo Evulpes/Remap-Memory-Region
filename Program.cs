@@ -1,91 +1,110 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
 using System.Linq;
-
+using System.Runtime.InteropServices;
+using static Remap_Memory_Region.NativeMethods.Winnt;
+using static Remap_Memory_Region.NativeMethods.Winnt.AccessMask;
+using static Remap_Memory_Region.NativeMethods.Winnt.MemoryAllocationType;
+using static Remap_Memory_Region.NativeMethods.Winnt.MemoryProtectionConstraints;
+using static Remap_Memory_Region.NativeMethods.Winnt.SectionProtectionConstraints;
 namespace Remap_Memory_Region
 {
     class Program : NativeMethods
     {
         static void Main(string[] args)
         {
-            Process process = Process.GetProcessesByName("notepad").FirstOrDefault();
-            IntPtr hProcess = Processthreadsapi.OpenProcess(Winnt.ProcessAccessFlags.PROCESS_ALL_ACCESS, false, process.Id);
+            Process targetProc = Process.GetProcessesByName("SomeProcess").FirstOrDefault();
 
+            //Open a handle to the target process
+            IntPtr hProcess = Processthreadsapi.OpenProcess(ProcessAccessFlags.PROCESS_ALL_ACCESS, false, targetProc.Id);
             if (hProcess == IntPtr.Zero)
-            {
-                Console.WriteLine("Failed on OpenProcess. Handle is invalid.");
-                return;
-            }
-
-            if (Memoryapi.VirtualQueryEx(hProcess, process.MainModule.BaseAddress, out Winnt.MEMORY_BASIC_INFORMATION basicInformation, Marshal.SizeOf(typeof(Winnt.MEMORY_BASIC_INFORMATION))) == 0)
-            {
-                Console.WriteLine("Failed on VirtualQueryEx. Return is 0 bytes.");
-                return;
-            }
-            IntPtr regionBase = basicInformation.baseAddress;
-            IntPtr regionSize = basicInformation.regionSize;
-            Ntpsapi.NtSuspendProcess(hProcess);
-            RemapMemoryRegion(hProcess, regionBase, regionSize.ToInt32(), Winnt.MemoryProtectionConstraints.PAGE_EXECUTE_READWRITE);
-            Ntpsapi.NtResumeProcess(hProcess);
-            Handleapi.CloseHandle(hProcess);
-
-        }
-        public static bool RemapMemoryRegion(IntPtr processHandle, IntPtr baseAddress, int regionSize, Winnt.MemoryProtectionConstraints mapProtection)
-        {
-            IntPtr addr = Memoryapi.VirtualAlloc(IntPtr.Zero, regionSize, Winnt.MemoryAllocationType.MEM_COMMIT | Winnt.MemoryAllocationType.MEM_RESERVE, mapProtection);
-            if (addr == IntPtr.Zero)
-                return false;
-
-            IntPtr copyBuf = Memoryapi.VirtualAlloc(IntPtr.Zero, regionSize, Winnt.MemoryAllocationType.MEM_COMMIT | Winnt.MemoryAllocationType.MEM_RESERVE, mapProtection);
-
-            if (!Memoryapi.ReadProcessMemory(processHandle, baseAddress, copyBuf, regionSize, out IntPtr bytes))
-                return false;
-            
-            IntPtr sectionHandle = default;
-            long sectionMaxSize = regionSize;
+                NativeError("OpenProcess");
 
 
-            Ntifs.Ntstatus status = Ntifs.NtCreateSection(ref sectionHandle, Winnt.AccessMask.SECTION_ALL_ACCESS, IntPtr.Zero, ref sectionMaxSize, Winnt.MemoryProtectionConstraints.PAGE_EXECUTE_READWRITE, Winnt.SectionProtectionConstraints.SEC_COMMIT, IntPtr.Zero);
-            
-            if (status != Ntifs.Ntstatus.STATUS_SUCCESS)
-                return false;
-
-            status = Ntapi.NtUnmapViewOfSection(processHandle, baseAddress);
-
-            if (status != Ntifs.Ntstatus.STATUS_SUCCESS)
-                return false;
-
-
-
-            IntPtr viewBase = baseAddress;
-            long sectionOffset = default;
-            uint viewSize = 0;
-            status = Ntapi.NtMapViewOfSection
+            //Query the process and get the baseInfo structure.
+            if (Memoryapi.VirtualQueryEx
             (
-                sectionHandle,
-                processHandle,
+                hProcess,
+                targetProc.MainModule.BaseAddress,
+                out MEMORY_BASIC_INFORMATION basicInfo,
+                Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION))) == 0
+            )
+                NativeError("VirtualQueryEx");
+
+
+            Ntpsapi.NtSuspendProcess(hProcess);
+
+            //Allocate a buffer to read the region to.
+            IntPtr buffer = Memoryapi.VirtualAlloc(IntPtr.Zero, (int)basicInfo.regionSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+            if (buffer == IntPtr.Zero)
+                NativeError("VirtualAlloc");
+
+            //Read the data into the buffer.
+            if (!Memoryapi.ReadProcessMemory(hProcess, basicInfo.baseAddress, buffer, (int)basicInfo.regionSize, out _))
+                NativeError("ReadProcessMemory");
+
+            IntPtr hSection = IntPtr.Zero;
+            long sectionMaxSize = (long)basicInfo.regionSize;
+
+
+            //Create a section object to share between local and remote process.
+            if (Ntifs.NtCreateSection
+            (
+                ref hSection,
+                SECTION_ALL_ACCESS,
+                IntPtr.Zero,
+                ref sectionMaxSize,
+                PAGE_EXECUTE_READWRITE,
+                SEC_COMMIT,
+                IntPtr.Zero
+            )
+            != Ntifs.Ntstatus.STATUS_SUCCESS)
+                NativeError("NtCreateSection");
+
+            //Unmap the memory at the base of the remote process.
+            if (Ntapi.NtUnmapViewOfSection(hProcess, basicInfo.baseAddress) != Ntifs.Ntstatus.STATUS_SUCCESS)
+                NativeError("NtUnmapViewOfSection");
+
+            IntPtr viewBase = basicInfo.baseAddress;
+            long sectionOffset = default;
+            uint viewSize = default;
+
+            //Map a region back to the original region location with new rights.
+            if (Ntapi.NtMapViewOfSection
+            (
+                hSection,
+                hProcess,
                 ref viewBase,
                 UIntPtr.Zero,
-                regionSize,
+                (int)basicInfo.regionSize,
                 ref sectionOffset,
                 ref viewSize,
-                2,
+                2 /*ViewUnmap*/,
                 0,
-                Winnt.MemoryProtectionConstraints.PAGE_EXECUTE_READWRITE
-            );
+                PAGE_EXECUTE_READWRITE /*Set to the desired new access rights*/
 
-            if (status != Ntifs.Ntstatus.STATUS_SUCCESS)
-                return false;
+            ) != Ntifs.Ntstatus.STATUS_SUCCESS)
+                NativeError("NtMapViewOfSection");
 
-            if (!Memoryapi.WriteProcessMemory(processHandle, viewBase, copyBuf, (int)viewSize, out bytes))
-                return false;
+            //Write the memory back to the updated region.
+            if (!Memoryapi.WriteProcessMemory(hProcess, viewBase, buffer, (int)viewSize, out IntPtr _))
+                NativeError("WriteProcessMemory");
 
-            if(!Memoryapi.VirtualFree(copyBuf, 0, Winnt.MemFree.MEM_RELEASE))
-                return false;
+            //Empty the buffer
+            Memoryapi.VirtualFree(buffer, 0, MemFree.MEM_RELEASE);
 
-            return true;
+            //Close the section handle
+            Handleapi.CloseHandle(hSection);
 
+            //Resume the process
+            Ntpsapi.NtResumeProcess(hProcess);
+
+        }
+        static void NativeError(string nativeMethod)
+        {
+            int lastWin32Error = Marshal.GetLastWin32Error();
+            Console.Write($"{nativeMethod} failed. Last Error: {lastWin32Error}");
+            Environment.Exit(lastWin32Error);
         }
     }
 }
