@@ -103,27 +103,27 @@ if (Ntifs.NtCreateSection
 Now, this section isn't in the repository, so PAY ATTENTION. Because we're downgrading rights, we'll need to map a view of the section to in our process using [NtMapViewOfSection](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-zwmapviewofsection), and then write the previously copied data to it.
 
 ```csharp
-            IntPtr viewAddr = IntPtr.Zero;
-            long localSectionOffset = 0;
-            uint localViewSize = 0;
+IntPtr viewAddr = IntPtr.Zero;
+long localSectionOffset = 0;
+uint localViewSize = 0;
 
-            if(Ntapi.NtMapViewOfSection
-            (
-                hSection,
-                Process.GetCurrentProcess().Handle,
-                ref viewAddr,
-                UIntPtr.Zero,
-                regionSize,
-                ref localSectionOffset,
-                ref localViewSize,
-                2,
-                0,
-                PAGE_EXECUTE_READWRITE) != Ntifs.Ntstatus.STATUS_SUCCESS
-            )
-                NativeError("NtMapViewOfSection");
+if(Ntapi.NtMapViewOfSection
+(
+    hSection,
+    Process.GetCurrentProcess().Handle,
+    ref viewAddr,
+    UIntPtr.Zero,
+    regionSize,
+    ref localSectionOffset,
+    ref localViewSize,
+    2,
+    0,
+    PAGE_EXECUTE_READWRITE) != Ntifs.Ntstatus.STATUS_SUCCESS
+)
+    NativeError("NtMapViewOfSection");
 
-             if (!Memoryapi.WriteProcessMemory(Process.GetCurrentProcess().Handle, viewAddr, buffer, (int)localViewSize, out IntPtr _))
-                NativeError("WriteProcessMemory");
+ if (!Memoryapi.WriteProcessMemory(Process.GetCurrentProcess().Handle, viewAddr, buffer, (int)localViewSize, out IntPtr _))
+    NativeError("WriteProcessMemory");
 
 ```
 
