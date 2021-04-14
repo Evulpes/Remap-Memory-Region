@@ -22,6 +22,8 @@ namespace Remap_Memory_Region
 
 
             //Query the process and get the baseInfo structure.
+            /*Very specific practice for very specifc apps. .NET has built in methods for standard apps.
+             See: Process Class Base Address + ModuleMemorySize*/
             if (Memoryapi.VirtualQueryEx
             (
                 hProcess,

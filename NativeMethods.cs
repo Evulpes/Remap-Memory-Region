@@ -34,7 +34,7 @@ namespace Remap_Memory_Region
             [DllImport("ntdll.dll")]
             public static extern Ntifs.Ntstatus NtUnmapViewOfSection(IntPtr processHandle, IntPtr baseAddress);
 
-            [DllImport("ntdll.dll")]
+            [DllImport("ntdll.dll", SetLastError = true)]
             public static extern Ntifs.Ntstatus NtMapViewOfSection(IntPtr sectionHandle, IntPtr processHandle, ref IntPtr baseAddress, UIntPtr ZeroBits, int commitSize, ref long SectionOffset, ref uint ViewSize, uint InheritDisposition, Winnt.MemoryAllocationType allocationType, Winnt.MemoryProtectionConstraints win32Protect);
         }
         protected static class Ntifs
