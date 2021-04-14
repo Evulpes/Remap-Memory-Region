@@ -60,7 +60,7 @@ if (sectioned)
 I'm not going to talk about the sectioned bool for this write-up, because in the scenario context it's not overly relevant.
 
 #### 3. Stop! Hammertime.
-Now, because of how we're going to modify the initial rights, we're going to need to pull a (MC Hammer)[https://youtu.be/otCpCn0l4Wo] and freeze the process while we make our changes. If we don't, our application will just crash :( We can use [NtSuspendProcess](http://pinvoke.net/default.aspx/ntdll/NtSuspendProcess.html) for this as we're fine suspending everything.
+Now, because of how we're going to modify the initial rights, we're going to need to pull a [MC Hammer](https://youtu.be/otCpCn0l4Wo) and freeze the process while we make our changes. If we don't, our application will just crash :( We can use [NtSuspendProcess](http://pinvoke.net/default.aspx/ntdll/NtSuspendProcess.html) for this as we're fine suspending everything.
 
 ```csharp
 Ntpsapi.NtSuspendProcess(hProcess);
@@ -148,7 +148,7 @@ After:
 
 
 #### 7. What Was The Previous Heading?
-Now that the old memory is gone, and we've written the data to the section, we can map the memory back into Globe of Peacekeeping, via NtMapViewOfSection, using whatever rights we'd like, in this case PAGE_EXECUTE_READ.:
+Now that the old memory is gone, and we've written the data to the section, we can map the memory back into Globe of Peacekeeping, via NtMapViewOfSection, using whatever rights we'd like, in this case PAGE_EXECUTE_READ:
 ```csharp
 //Map a region back to the original region location with new rights.
 if (Ntapi.NtMapViewOfSection
