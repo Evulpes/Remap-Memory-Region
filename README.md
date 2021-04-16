@@ -79,7 +79,7 @@ if (!Memoryapi.ReadProcessMemory(hProcess, baseAddress, buffer, regionSize, out 
     NativeError("ReadProcessMemory");
 ```
 #### 5. Mom Said It's My Go On The Memory!
-At this point, we're going to need to creare a section object. If you're not familiar with a [section object](https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/section-objects-and-views), check the link. However, in short it's basically a region of memory that we can share between two processes in a specific manner. We'll use [NtCreateSection](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-zwcreatesection) for this:
+At this point, we're going to need to create a section object. If you're not familiar with a [section object](https://docs.microsoft.com/en-us/windows-hardware/drivers/kernel/section-objects-and-views), check the link. However, in short it's basically a region of memory that we can share between two processes in a specific manner. We'll use [NtCreateSection](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-zwcreatesection) for this:
 ```csharp
 IntPtr hSection = IntPtr.Zero;
 long sectionMaxSize = (long)regionSize;
