@@ -1,8 +1,4 @@
 # Remap-Memory-Region
-## Other Usage Examples
-[Offline Patcher](https://github.com/ferib/D2R-Offline)
-
-[Bypassing Read-Only Code Protection (crc32)](https://ferib.dev/blog.php?l=post/Bypassing_World_of_Warcraft_Crc32_Integrity_Checks)
 ## Introduction - It Is Known!
 Like that one extra said in Game of Thrones, ["it is known"](https://youtu.be/foqUPiwMiOM). It is known that you cannot set your [Memory Protection Options](https://docs.microsoft.com/en-us/windows/win32/memory/memory-protection-constants) greater than the initial level. I say this but I can't source it; I'm SURE Microsoft will have written it down somewhere, so go find it and pull request. However for now, it is just known, unless you go try it.
 
