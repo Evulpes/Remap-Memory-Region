@@ -95,7 +95,7 @@ if (Ntifs.NtCreateSection
 != Ntifs.Ntstatus.STATUS_SUCCESS)
     NativeError("NtCreateSection");
 ```
-### 5A. Code Atlantis
+#### 5A. Code Atlantis
 Now, this section isn't in the repository, so PAY ATTENTION. Because we're downgrading rights, we'll need to map a view of the section to in our process using [NtMapViewOfSection](https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-zwmapviewofsection), and then write the previously copied data to it.
 
 ```csharp
