@@ -13,7 +13,7 @@ Let's suppose all these write-ups I do are entirely for ethical purposes, and th
 With this scenario in mind, let's look at how Sandstorm Depression can modify the initial page protection level to stop writes to their memory.
 
 ### Initial D but it's ERWC
-Right so here's a picture I made earlier of what the intitial protection for the base executable looks like in Globe of Peackeeping:
+Right so here's a picture I made earlier of what the intitial protection for the base executable looks like in Globe of Peacekeeping:
 <p align="center">
   <img src="https://i.imgur.com/iJYqn60.png"/>
 </p> 
