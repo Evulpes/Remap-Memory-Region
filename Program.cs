@@ -100,7 +100,7 @@ namespace Remap_Memory_Region
                 ref sectionOffset,
                 ref viewSize,
                 2 /*ViewUnmap*/,
-                0,
+                0, // TODO: SEC_NO_CHANGE
                 PAGE_EXECUTE_READWRITE /*Set to the desired new access rights*/
 
             ) != Ntifs.Ntstatus.STATUS_SUCCESS)
